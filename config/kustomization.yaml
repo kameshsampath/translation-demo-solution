@@ -1,0 +1,21 @@
+namespace: demo-apps
+resources:
+  - namespace.yaml
+  - https://github.com/kameshsampath/harness-gke-wi-demo//app/config
+# uncomment patch to make and trigger a build to make app use Translation API
+patches:
+  - patch: |
+      kind: ServiceAccount
+      apiVersion: v1
+      metadata:
+        name: lingua-greeter
+        annotations:
+         iam.gke.io/gcp-service-account: $TRANSLATOR_GSA
+    target:
+      kind: ServiceAccount
+      name: lingua-greeter
+images:
+  - name: ghcr.io/kameshsampath/wi-lingua-greeter@sha256:845fa21d9360771160959ff1143e96d20ac79a512cb7e3176e078c3203731620
+    newName: $APPLICATION_IMAGE
+    newTag: $APPLICATION_IMAGE_TAG
+    digest: $APPLICATION_IMAGE_DIGEST

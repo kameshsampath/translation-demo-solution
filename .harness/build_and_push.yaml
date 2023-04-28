@@ -1,0 +1,53 @@
+pipeline:
+  name: Build and Push
+  identifier: build_and_push
+  projectIdentifier: Google_Cloud_Demos
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        template:
+          templateRef: ko_gar_build_push
+          versionLabel: v1
+          templateInputs:
+            type: CI
+            spec:
+              infrastructure:
+                type: KubernetesDirect
+                spec:
+                  connectorRef: <+input>
+                  namespace: <+input>
+                  serviceAccountName: <+input>
+              execution:
+                steps:
+                  - step:
+                      identifier: Download_Binaries
+                      type: Run
+                      spec:
+                        envVariables:
+                          REGISTRY_LIST: <+input>
+                  - step:
+                      identifier: ko_build_and_push
+                      type: Run
+                      spec:
+                        envVariables:
+                          KO_DOCKER_REPO: <+input>
+                          APP_DIR: <+input>
+                  - step:
+                      identifier: build_manifests
+                      type: Run
+                      spec:
+                        envVariables:
+                          OCI_MANIFESTS_REPO: <+input>
+                          OCI_MANIFESTS_TAG: <+input>
+                          KUSTOMIZE_DIR: <+input>
+                          OCI_PROVIDER: <+input>
+                          TRANSLATOR_GSA: <+input>
+  properties:
+    ci:
+      codebase:
+        connectorRef: <+input>
+        repoName: <+input>
+        build: <+input>

@@ -1,0 +1,59 @@
+inputSet:
+  name: github defaults
+  tags: {}
+  identifier: github_defaults
+  orgIdentifier: default
+  projectIdentifier: Google_Cloud_Demos
+  pipeline:
+    identifier: build_and_push
+    stages:
+      - stage:
+          identifier: Build
+          template:
+            templateInputs:
+              type: CI
+              spec:
+                infrastructure:
+                  type: KubernetesDirect
+                  spec:
+                    connectorRef: default_gke
+                    namespace: default
+                    serviceAccountName: harness-builder
+                execution:
+                  steps:
+                    - step:
+                        identifier: Download_Binaries
+                        type: Run
+                        spec:
+                          envVariables:
+                            REGISTRY_LIST: REPLACE ME
+                    - step:
+                        identifier: ko_build_and_push
+                        type: Run
+                        spec:
+                          envVariables:
+                            KO_DOCKER_REPO: REPLACE ME
+                            APP_DIR: /harness
+                    - step:
+                        identifier: build_manifests
+                        type: Run
+                        spec:
+                          envVariables:
+                            OCI_MANIFESTS_REPO: REPLACE ME
+                            OCI_MANIFESTS_TAG: latest
+                            KUSTOMIZE_DIR: /harness/config
+                            OCI_PROVIDER: gcp
+                            TRANSLATOR_GSA: REPLACE ME
+    properties:
+      ci:
+        codebase:
+          connectorRef: account.Github
+          repoName: YOUR GITHUB USER ID/translation-demo-solution
+          build:
+            type: branch
+            spec:
+              branch: main
+  cacheResponse:
+    cacheState: STALE_CACHE
+    ttlLeft: 2582696327
+    lastUpdatedAt: 1681999254442
